@@ -301,4 +301,66 @@ public class ProdukDAO {
 
 Melalui pembungkusan operasi basis data ke dalam method mandiri yang memanfaatkan try-with-resources untuk mengelola koneksi secara aman, pola DAO memungkinkan Controller untuk memanggil fungsi seperti tampilkanSemua() atau hapus(idProduk) secara bersih dan terstruktur, sehingga kode program keseluruhan menjadi jauh lebih rapi dan mudah dipelihara.
 
+## Alur Program
 
+**Menu Utama**
+
+<img width="362" height="195" alt="image" src="https://github.com/user-attachments/assets/2e995c5c-8e6a-4fbd-84a1-ad54e6a8277b" />
+
+Ini adalah tampilan menu utama saat penggua pertama kali membuka program.
+
+**Tambah Produksi**
+
+<img width="428" height="494" alt="image" src="https://github.com/user-attachments/assets/424b9d90-c22d-46c5-924c-44ef483abf3d" />
+
+Gambar di atas adalah pilihan menu pertama untuk menambah data produksi baru. Program meminta masukan informasi umum seperti ID produk, nama produk, stok, harga, jumlah produksi, dan tanggal, dilanjutkan dengan pemilihan status produksi (Selesai) dan jenis produk (Roti) beserta atribut khususnya yaitu rasa dan ukuran, sebelum akhirnya memproses dan menampilkan pesan konfirmasi bahwa data produk berhasil ditambahkan ke database.
+
+<img width="1366" height="767" alt="image" src="https://github.com/user-attachments/assets/2f24db46-d757-4559-863c-cf53a6a0bb53" />
+
+Dari gambar di atas dapat di lihat bahwa data yang sudah tambahkan pada program java sebelumnya sudah terkoneksi juga dengan database dengan bukti data tersebut ada di phpmyadmin yang menandakan bahwa program juga berjalan dan terkoneksi dengan baik.
+
+**Tampilkan Data Produksi**
+
+<img width="368" height="701" alt="image" src="https://github.com/user-attachments/assets/da34b3d9-caa2-4424-97dd-d2c7a179da70" />
+
+Gambar di atas menunjukkan hasil saat pengguna memilih menu untuk menampilkan seluruh data produksi, di mana sistem berhasil mengambil dan mencetak daftar produk secara rinci—termasuk atribut umum seperti ID, nama, stok, harga, tanggal produksi, dan status, serta atribut spesifik masing-masing kategori seperti jenis kue atau rasa roti.
+
+**Update Stok Produksi**
+
+<img width="329" height="338" alt="image" src="https://github.com/user-attachments/assets/cf709b3c-8e69-471b-ba68-5746b8d4b8f3" />
+
+Gambar di atas ialah saat pengguna memilih menu nomor 3 untuk memperbarui stok produk, di mana sistem meminta masukan ID produk (80), memvalidasi keberadaan data produk "Canai" dengan stok awal 50, menerima input nilai stok baru (30), dan berhasil memperbarui data tersebut di dalam database.
+
+<img width="1364" height="765" alt="image" src="https://github.com/user-attachments/assets/71e507a6-398a-4dc0-bc28-63ae986277e8" />
+
+Nah dari gambar di atas pun dapat di ketahui bahwa pada data di database phpmyadmin untuk data produk "Canai" itu yang awal stok nya "50" setelah di update pada program java input perubahan "30" , data produk tersebut di database juga ikut berubah yang menandakan koneksi ke database juga berhasil.
+
+**Hapus Data Produksi**
+
+<img width="324" height="262" alt="image" src="https://github.com/user-attachments/assets/05c1553d-2f40-4740-995f-2695900f80bc" />
+
+Gambar di atas menunjukkan proses interaksi saat pengguna memilih menu nomor 4 untuk menghapus data produksi, di mana pengguna meminta masukan ID produk (80) dan langsung mengeksekusi perintah penghapusan, kemudian menampilkan pesan konfirmasi bahwa data produk tersebut berhasil dihapus dari database.
+
+<img width="1364" height="765" alt="image" src="https://github.com/user-attachments/assets/a1de1748-d47f-41d4-a4f4-9cdd95e697c3" />
+
+Setelah menghapus data produk dari program java , maka data produk di database phpmyadmin pun ikut terhapus.
+
+**Cari Data Produksi**
+
+**ID**
+
+<img width="282" height="445" alt="image" src="https://github.com/user-attachments/assets/5365fa03-75be-4ea7-bfff-da78e93dcdbb" />
+
+Gambar di atas menampilkan saat pengguna memilih menu nomor 5 untuk mencari data produksi berdasarkan ID, di mana setelah pengguna memasukkan nomor ID 17, sistem berhasil menemukan dan menampilkan informasi lengkap produk kue tersebut termasuk nama, stok, harga, tanggal produksi, status, hingga atribut spesifik seperti jenis kue dan ukurannya.
+
+**NAMA**
+
+<img width="302" height="601" alt="image" src="https://github.com/user-attachments/assets/61a4418a-95e3-407a-b051-8f240b7f9c08" />
+
+Gambar di atas menampilkan saat pengguna memilih menu nomor 5 untuk mencari data produksi berdasarkan nama, di mana setelah memasukkan kata kunci "Roti Keju", sistem berhasil menemukan dan menampilkan informasi lengkap produk terkait—termasuk ID, stok, harga, tanggal produksi, status, hingga atribut spesifik seperti rasa dan ukuran—sebelum akhirnya kembali menampilkan menu utama aplikasi.
+
+**Keluar Program**
+
+<img width="353" height="283" alt="image" src="https://github.com/user-attachments/assets/6aa6eace-1269-4b43-98af-5eed27c7438d" />
+
+Ini adalah tampilan saat pengguna sudah selesai menggunakan sistem maka pengguna akan memilih keluar program dan akhirnya program selesai.
