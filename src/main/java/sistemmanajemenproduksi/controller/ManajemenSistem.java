@@ -6,28 +6,17 @@ import sistemmanajemenproduksi.model.Produk;
 import sistemmanajemenproduksi.model.Roti;
 import sistemmanajemenproduksi.view.View;
 import sistemmanajemenproduksi.controller.KelolaProduksi;
+import sistemmanajemenproduksi.dao.ProdukDAO;
 
-public class ManajemenSistem implements KelolaProduksi{
+public class ManajemenSistem implements KelolaProduksi {
 
-    private final ArrayList<Produk> daftarProduk;
     private final View view;
+    private final ProdukDAO produkDAO = new ProdukDAO();
 
     public ManajemenSistem(View view) {
         this.view = view;
-        daftarProduk = new ArrayList<>();
-
-        tambahDataAwal();
     }
-
-    private void tambahDataAwal() {
-
-        Roti roti = new Roti(20, "Roti Keju", 80, 15000, 50, "20-09-2026", "Selesai", "Keju", "Medium" );
-
-        Kue kue = new Kue(17, "Brownies Coklat", 50, 25000, 75, "19-09-2026", "Diproses", "Brownies","Sedang");
-
-        daftarProduk.add(roti);
-        daftarProduk.add(kue);
-    }
+    
     @Override
     public void tambahProduk() {
         System.out.println();
@@ -35,14 +24,11 @@ public class ManajemenSistem implements KelolaProduksi{
         System.out.println("===== TAMBAH DATA PRODUKSI =====");
         System.out.println("================================");
 
-        int idProduk;
-        while (true) {
-            idProduk = view.inputId();
-            if (!idSudahAda(idProduk)) {
-                break;
-            }
-
-            System.out.println("ID Produk sudah digunakan!");
+        int idProduk = view.inputId();
+        
+        if (produkDAO.cariById(idProduk) != null) {
+            System.out.println("ID Produk sudah digunakan di database!");
+            return;
         }
 
         String namaProduk = view.inputNamaProduk();
@@ -53,6 +39,8 @@ public class ManajemenSistem implements KelolaProduksi{
         String statusProduksi = view.inputStatusProduksi();
         int jenisProduk = view.inputJenisProduk();
 
+        Produk produkBaru = null;
+
         if (jenisProduk == 1) {
             System.out.println();
             System.out.println("=====================");
@@ -62,23 +50,12 @@ public class ManajemenSistem implements KelolaProduksi{
             String rasa = view.inputRasa();
             String ukuranRoti = view.inputUkuranRoti();
 
-            Roti rotiBaru = new Roti(
-                    idProduk,
-                    namaProduk,
-                    stok,
-                    hargaProduk,
-                    jumlahProduksi,
-                    tanggalProduksi,
-                    statusProduksi,
-                    rasa,
-                    ukuranRoti
+            produkBaru = new Roti(
+                    idProduk, namaProduk, stok, hargaProduk, 
+                    jumlahProduksi, tanggalProduksi, statusProduksi, 
+                    rasa, ukuranRoti
             );
-
-            daftarProduk.add(rotiBaru);
-            System.out.println("Data Roti berhasil ditambahkan.");
-
         } else {
-
             System.out.println();
             System.out.println("====================");
             System.out.println("===== DATA KUE =====");
@@ -87,47 +64,36 @@ public class ManajemenSistem implements KelolaProduksi{
             String jenisKue = view.inputJenisKue();
             String ukuranKue = view.inputUkuranKue();
 
-            Kue kueBaru = new Kue(
-                    idProduk,
-                    namaProduk,
-                    stok,
-                    hargaProduk,
-                    jumlahProduksi,
-                    tanggalProduksi,
-                    statusProduksi,
-                    jenisKue,
-                    ukuranKue
+            produkBaru = new Kue(
+                    idProduk, namaProduk, stok, hargaProduk, 
+                    jumlahProduksi, tanggalProduksi, statusProduksi, 
+                    jenisKue, ukuranKue
             );
-
-            daftarProduk.add(kueBaru);
-            System.out.println("Data Kue berhasil ditambahkan.");
-        }
-    }
-
-    private boolean idSudahAda(int idProduk) {
-        for (Produk produk : daftarProduk) {
-            if (produk.getIdProduk() == idProduk) {
-                return true;
-            }
         }
 
-        return false;
+        boolean berhasil = produkDAO.tambah(produkBaru);
+        if (berhasil) {
+            System.out.println("Data produk berhasil ditambahkan ke database.");
+        } else {
+            System.out.println("Gagal menambahkan data produk.");
+        }
     }
 
     @Override
     public void tampilkanProduk() {
-
         System.out.println();
         System.out.println("=========================");
         System.out.println("===== DATA PRODUKSI =====");
         System.out.println("=========================");
 
+        ArrayList<Produk> daftarProduk = produkDAO.tampilkanSemua();
+
         if (daftarProduk.isEmpty()) {
-            System.out.println("Belum ada data produksi.");
+            System.out.println("Belum ada data produksi di database.");
             return;
         }
-        for (Produk produk : daftarProduk) {
 
+        for (Produk produk : daftarProduk) {
             System.out.println();
             produk.tampilkanProduk();
         }
@@ -135,92 +101,79 @@ public class ManajemenSistem implements KelolaProduksi{
 
     @Override
     public void updateProduk() {
-
         System.out.println();
         System.out.println("==============================");
         System.out.println("===== UPDATE STOK PRODUK =====");
         System.out.println("==============================");
 
         int idProduk = view.inputId();
-        for (Produk produk : daftarProduk) {
-            if (produk.getIdProduk() == idProduk) {
-                System.out.println();
-                System.out.println("Produk ditemukan.");
-                System.out.println("Nama Produk : " + produk.getNamaProduk());
-                System.out.println("Stok Saat Ini : " + produk.getStok());
+        Produk produk = produkDAO.cariById(idProduk);
 
-                int stokBaru = view.inputStok();
+        if (produk != null) {
+            System.out.println();
+            System.out.println("Produk ditemukan.");
+            System.out.println("Nama Produk   : " + produk.getNamaProduk());
+            System.out.println("Stok Saat Ini : " + produk.getStok());
 
-                produk.setStok(stokBaru);
-                System.out.println("Stok berhasil diperbarui.");
-                return;
+            int stokBaru = view.inputStok();
+            
+            boolean berhasil = produkDAO.updateStok(idProduk, stokBaru);
+            if (berhasil) {
+                System.out.println("Stok berhasil diperbarui di database.");
+            } else {
+                System.out.println("Gagal memperbarui stok di database.");
             }
+        } else {
+            System.out.println("Produk dengan ID tersebut tidak ditemukan.");
         }
-        System.out.println("Produk dengan ID tersebut tidak ditemukan.");
     }
 
     @Override
     public void hapusProduk() {
-
         System.out.println();
         System.out.println("===============================");
         System.out.println("===== HAPUS DATA PRODUKSI =====");
         System.out.println("===============================");
+        
         int idProduk = view.inputId();
-        for (int i = 0; i < daftarProduk.size(); i++) {
-            if (daftarProduk.get(i).getIdProduk() == idProduk) {
-                daftarProduk.remove(i);
-                System.out.println("Data produksi berhasil dihapus.");
-                return;
-            }
+        
+        boolean berhasil = produkDAO.hapus(idProduk);
+        if (berhasil) {
+            System.out.println("Data produksi berhasil dihapus dari database.");
+        } else {
+            System.out.println("Produk dengan ID tersebut tidak ditemukan atau gagal dihapus.");
         }
-        System.out.println("Produk dengan ID tersebut tidak ditemukan.");
     }
     
-// Overloading 1: mencari berdasarkan ID
+    // Overloading mencari berdasarkan ID
     public void cariProduk(int idProduk) {
+        System.out.println();
+        System.out.println("===== HASIL PENCARIAN =====");
 
-    System.out.println();
-    System.out.println("===== HASIL PENCARIAN =====");
+        Produk produk = produkDAO.cariById(idProduk);
 
-    for (Produk produk : daftarProduk) {
-
-        if (produk.getIdProduk() == idProduk) {
-
+        if (produk != null) {
             produk.tampilkanProduk();
-            return;
+        } else {
+            System.out.println("Produk dengan ID tersebut tidak ditemukan.");
         }
     }
 
-    System.out.println("Produk dengan ID tersebut tidak ditemukan.");
-}
-
-
-// Overloading 2: mencari berdasarkan nama
+    // Overloading mencari berdasarkan nama
     public void cariProduk(String namaProduk) {
+        System.out.println();
+        System.out.println("===== HASIL PENCARIAN =====");
 
-    System.out.println();
-    System.out.println("===== HASIL PENCARIAN =====");
+        ArrayList<Produk> hasil = produkDAO.cariByNama(namaProduk);
 
-    boolean ditemukan = false;
-
-    for (Produk produk : daftarProduk) {
-
-        if (produk.getNamaProduk().equalsIgnoreCase(namaProduk)) {
-
-            produk.tampilkanProduk();
-            ditemukan = true;
+        if (hasil.isEmpty()) {
+            System.out.println("Produk dengan nama tersebut tidak ditemukan.");
+        } else {
+            for (Produk produk : hasil) {
+                System.out.println();
+                produk.tampilkanProduk();
+            }
         }
     }
-
-    if (!ditemukan) {
-
-        System.out.println(
-                "Produk dengan nama tersebut tidak ditemukan."
-        );
-    }
-}
-
-
 }
 
