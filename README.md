@@ -222,5 +222,83 @@ Kode di atas adalah kode uji coba pada class TesKoneksi.java untuk memverifikasi
 
 Output di atas adalah bukti bahwa java kita sudah terkoneksi dengan database kita sendiri yang dimana nanti perubahan pada java saat menjalankan fitur aplikasi pada database juga akan berubah.
 
+## Penjelasan Prepared Statement
+PreparedStatement adalah kelas turunan dari JDBC yang digunakan untuk mengeksekusi pernyataan SQL yang telah dikompilasi sebelumnya. Di dalam proyek ini, seluruh operasi manipulasi data—seperti tambah (INSERT), ubah (UPDATE), cari (SELECT), dan hapus (DELETE)—wajib menggunakan PreparedStatement alih-alih menggunakan Statement biasa.
+
+Penerapan ini memiliki dua keunggulan utama yang krusial, yaitu perlindungan terhadap celah keamanan SQL Injection dan peningkatan performa eksekusi. 
+
+Contoh Code:
+```java
+public boolean updateStok(int idProduk, int stokBaru) {
+    String sql = "UPDATE produk SET stok = ? WHERE id_produk = ?";
+
+    try (
+        Connection conn = Koneksi.getConnection();
+        PreparedStatement ps = conn.prepareStatement(sql)
+    ) {
+        // Mengisi parameter tanda tanya (?) berdasarkan urutan indeks
+        ps.setInt(1, stokBaru);
+        ps.setInt(2, idProduk);
+
+        return ps.executeUpdate() > 0;
+
+    } catch (SQLException e) {
+        System.out.println("Gagal memperbarui stok: " + e.getMessage());
+        return false;
+    }
+}
+```
+Pada Code di atas Penerapan PreparedStatement menggunakan tanda tanya (?) sebagai parameter penampung dinamis untuk mencegah manipulasi input, di mana database akan mengompilasi struktur kueri tersebut satu kali di awal agar eksekusi berulang menjadi lebih cepat dan efisien. Melalui method seperti ps.setInt(), nilai variabel dimasukkan secara aman berdasarkan indeksnya sehingga input diperlakukan murni sebagai data, sebelum akhirnya perintah ps.executeUpdate() dijalankan untuk memproses perubahan data dan mengembalikan nilai boolean penanda keberhasilan.
+
+## Penjelasan DAO
+Penerapan pola desain DAO (Data Access Object) memisahkan logika akses basis data—seperti operasi CRUD dan pencarian—secara terpusat di dalam kelas ProdukDAO.java, sehingga mewujudkan prinsip Separation of Concerns di mana lapisan Controller dan View terbebas dari kerumitan kueri SQL maupun struktur tabel MySQL dan membuat pemeliharaan kode menjadi jauh lebih mudah.
+
+Contoh Code:
+```java
+public class ProdukDAO {
+
+    // 1. Menampilkan semua produk dari database
+    public ArrayList<Produk> tampilkanSemua() {
+        ArrayList<Produk> daftarProduk = new ArrayList<>();
+        String sql = "SELECT * FROM produk ORDER BY id_produk";
+
+        try (
+            Connection conn = Koneksi.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery()
+        ) {
+            while (rs.next()) {
+                Produk produk = buatObjekProduk(rs);
+                if (produk != null) {
+                    daftarProduk.add(produk);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Gagal mengambil data produk: " + e.getMessage());
+        }
+
+        return daftarProduk;
+    }
+
+    // 2. Menghapus produk berdasarkan ID
+    public boolean hapus(int idProduk) {
+        String sql = "DELETE FROM produk WHERE id_produk = ?";
+
+        try (
+            Connection conn = Koneksi.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setInt(1, idProduk);
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            System.out.println("Gagal menghapus produk: " + e.getMessage());
+            return false;
+        }
+    }
+}
+```
+
+Melalui pembungkusan operasi basis data ke dalam method mandiri yang memanfaatkan try-with-resources untuk mengelola koneksi secara aman, pola DAO memungkinkan Controller untuk memanggil fungsi seperti tampilkanSemua() atau hapus(idProduk) secara bersih dan terstruktur, sehingga kode program keseluruhan menjadi jauh lebih rapi dan mudah dipelihara.
 
 
