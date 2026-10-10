@@ -169,4 +169,58 @@ INSERT INTO produk (
     'Kue', NULL, NULL, 'Brownies', 'Sedang'
 );
 ```
+Selanjutnya setelah saya membuat di phpmyadmin database, lanjut untuk ke java dengan membuat class Koneksi dan TesKoneksi untuk membuat konfigurasi database nya dengan java.
+
+Class Code Koneksi:
+```java
+package sistemmanajemenproduksi.database;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class Koneksi {
+
+    private static final String URL =
+            "jdbc:mysql://localhost:3306/sistem_produksi_roti_kue";
+
+    private static final String USER =
+            "root";
+
+    private static final String PASSWORD =
+            "";
+
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
+}
+```
+
+Baris URL, USER, dan PASS mendefinisikan kredensial akses ke server MySQL lokal, di mana db_manajemen_produksi bertindak sebagai nama database yang digunakan. Method getConnection() menggunakan DriverManager.getConnection(URL, USER, PASS) untuk meminta objek sambungan fisik (Connection) dari driver MySQL. Blok try-catch disertakan untuk menangkap potensi galat (exception) apabila server database mati, alamat URL salah, atau autentikasi ditolak, sehingga program tidak langsung berhenti secara mendadak.
+
+Class Code TesKoneksi:
+```java
+package sistemmanajemenproduksi.database;
+import java.sql.Connection;
+import java.sql.SQLException;
+import sistemmanajemenproduksi.database.Koneksi;
+
+public class TesKoneksi {
+
+    public static void main(String[] args) {
+        try (Connection conn = Koneksi.getConnection()) {
+            System.out.println("Koneksi database berhasil!");
+        } catch (SQLException e) {
+            System.out.println("Koneksi database gagal.");
+            System.out.println(e.getMessage());
+        }
+    }
+}
+```
+Kode di atas adalah kode uji coba pada class TesKoneksi.java untuk memverifikasi sambungan database MySQL secara mandiri sebelum aplikasi utama dijalankan, dengan memanfaatkan struktur try-with-resources untuk memanggil Koneksi.getConnection(). Jika konfigurasi seperti URL, username, dan password sudah benar serta server MySQL aktif, program akan mencetak pesan sukses ke konsol; sebaliknya, jika terjadi kesalahan, blok catch akan menangkap SQLException dan mencetak detail pesan galat tanpa membuat program berhenti mendadak.
+
+<img width="647" height="243" alt="image" src="https://github.com/user-attachments/assets/382c5f91-7434-4340-8e94-75b73de77500" />
+
+Output di atas adalah bukti bahwa java kita sudah terkoneksi dengan database kita sendiri yang dimana nanti perubahan pada java saat menjalankan fitur aplikasi pada database juga akan berubah.
+
+
 
